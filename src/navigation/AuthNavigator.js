@@ -4,6 +4,7 @@ import { colors, typography } from "../theme/ui";
 import GuestHomeScreen from "../screens/auth/GuestHomeScreen";
 import LoginScreen from "../screens/auth/LoginScreen";
 import RoleSelectScreen from "../screens/auth/RoleSelectScreen";
+import SplashScreen from "../screens/auth/SplashScreen";
 import VerifyOtpScreen from "../screens/auth/VerifyOtpScreen";
 
 const Stack = createNativeStackNavigator();
@@ -12,7 +13,7 @@ export default function AuthNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName="GuestHome"
+      initialRouteName="Splash"
       screenOptions={{
         headerStyle: { backgroundColor: colors.surface },
         headerShadowVisible: false,
@@ -24,6 +25,12 @@ export default function AuthNavigator() {
         contentStyle: { backgroundColor: colors.background },
       }}
     >
+      <Stack.Screen
+        name="Splash"
+        component={SplashScreen}
+        options={{ headerShown: false }}
+      />
+
       <Stack.Screen
         name="GuestHome"
         component={GuestHomeScreen}
@@ -43,7 +50,7 @@ export default function AuthNavigator() {
         name="Login"
         component={LoginScreen}
         options={({ route }) => ({
-          title: route?.params?.role === "technician" ? "Technician Sign In" : "User Sign In",
+          title: route?.params?.role === "technician" ? "Technician Sign In" : "Customer Sign In",
           headerBackVisible: true,
         })}
       />
@@ -52,7 +59,7 @@ export default function AuthNavigator() {
         name="VerifyOtp"
         component={VerifyOtpScreen}
         options={({ route }) => ({
-          title: route?.params?.role === "technician" ? "Verify Technician OTP" : "Verify User OTP",
+          title: route?.params?.role === "technician" ? "Verify Technician OTP" : "Verify Customer OTP",
           headerBackVisible: true,
         })}
       />

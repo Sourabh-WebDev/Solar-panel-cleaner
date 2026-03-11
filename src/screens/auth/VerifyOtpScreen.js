@@ -19,8 +19,8 @@ export default function VerifyOtpScreen({ route }) {
         }
 
         setUser({
-            name: role === "technician" ? "Demo Technician" : "Demo User",
-            role
+            name: role === "technician" ? "Demo Technician" : "Demo Customer",
+            role,
         });
 
     };
@@ -29,7 +29,7 @@ export default function VerifyOtpScreen({ route }) {
         <View style={styles.container}>
             <View style={styles.card}>
                 <Text style={styles.title}>Verify OTP</Text>
-                <Text style={styles.roleText}>Role: {role === "technician" ? "Technician" : "User"}</Text>
+                <Text style={styles.roleText}>Role: {role === "technician" ? "Technician" : "Customer"}</Text>
                 <Text style={styles.phoneText}>Phone: {phone}</Text>
 
                 <TextInput
