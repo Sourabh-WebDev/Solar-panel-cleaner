@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import {
     Animated,
     Easing,
+    Image,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -84,6 +85,12 @@ export default function RoleSelectScreen({ navigation }) {
                         ]
                     }
                 ]}
+            />
+
+            <Image
+                source={require("../../../assets/images/solar-panel-model.png")}
+                resizeMode="contain"
+                style={styles.panelImage}
             />
 
             {/* Hero Typography */}
@@ -190,6 +197,13 @@ const styles = StyleSheet.create({
         width: "100%",
         height: 180,
         alignSelf: "center",
+    },
+
+    panelImage: {
+        width: "100%",
+        height: 110,
+        alignSelf: "center",
+        marginTop: -50,
     },
 
     header: {
