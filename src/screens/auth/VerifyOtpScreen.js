@@ -84,6 +84,15 @@ export default function VerifyOtpScreen({ route }) {
         setUser({
             name: role === "technician" ? "Demo Technician" : "Demo Customer",
             role,
+            email: role === "technician" ? "technician@solarcleaner.app" : "customer@solarcleaner.app",
+            phone,
+            address: role === "technician" ? "Ghaziabad, Uttar Pradesh" : "Indirapuram, Ghaziabad",
+            dateOfBirth: role === "technician" ? "14/07/1996" : "08/05/1998",
+            memberSince: role === "technician" ? "2024" : "2025",
+            customerType: role === "technician" ? "Field Technician" : "Residential Customer",
+            notificationsCount: role === "technician" ? 2 : 3,
+            serviceCount: role === "technician" ? 0 : 6,
+            paymentCount: role === "technician" ? 0 : 5,
             profileImageUri: null,
         });
 

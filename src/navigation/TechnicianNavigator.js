@@ -11,6 +11,7 @@ import { technicianStats } from "../services/api";
 import AcceptJobScreen from "../screens/technician/AcceptJobScreen";
 import CompleteJobScreen from "../screens/technician/CompleteJobScreen";
 import EarningsScreen from "../screens/technician/EarningsScreen";
+import IncomingRequestScreen from "../screens/technician/IncomingRequestScreen";
 import JobDetailsScreen from "../screens/technician/JobDetailsScreen";
 import JobListScreen from "../screens/technician/JobListScreen";
 import StartJobScreen from "../screens/technician/StartJobScreen";
@@ -161,6 +162,15 @@ export default function TechnicianNavigator() {
                 name="Tabs"
                 component={TabScreens}
                 options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="IncomingRequest"
+                component={IncomingRequestScreen}
+                options={{
+                    title: "Incoming Request",
+                    presentation: "fullScreenModal",
+                    headerBackVisible: false
+                }}
             />
             <Stack.Screen
                 name="AvailableJobs"

@@ -27,6 +27,15 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "expo-notifications",
+      "./plugins/with-service-request-android",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow SolarClean Pro to access your location to fetch your service address.",
+          "locationWhenInUsePermission": "Allow SolarClean Pro to use your current location for your service address."
+        }
+      ],
       [
         "expo-splash-screen",
         {

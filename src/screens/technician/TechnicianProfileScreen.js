@@ -1,7 +1,7 @@
-import { useContext, useMemo, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
+import { useContext, useMemo, useState } from "react";
 import {
     Alert,
     Modal,
@@ -117,6 +117,13 @@ export default function TechnicianProfileScreen() {
                 profileImageUri: result.assets[0].uri
             }));
         }
+    };
+
+    const openHelpSupport = () => {
+        Alert.alert(
+            "Help & Support",
+            "Email us support@solarcleaner.app or Call Us +91 99999 99999"
+        );
     };
 
     return (
@@ -237,6 +244,14 @@ export default function TechnicianProfileScreen() {
                             ))}
                         </View>
                     </View>
+
+                    <Pressable style={styles.supportRow} onPress={openHelpSupport}>
+                        <View style={styles.sectionHeader}>
+                            <MaterialCommunityIcons name="help-circle-outline" size={18} color={colors.primary} />
+                            <Text style={styles.sectionTitle}>Help & Support</Text>
+                        </View>
+                        <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} />
+                    </Pressable>
                 </View>
             </ScrollView>
 
@@ -518,6 +533,16 @@ const styles = StyleSheet.create({
 
     serviceAreaSection: {
         marginTop: spacing.lg
+    },
+
+    supportRow: {
+        marginTop: spacing.lg,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+        paddingTop: spacing.md
     },
 
     sectionHint: {

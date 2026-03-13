@@ -1,190 +1,444 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useMemo, useState } from "react";
 import {
     Image,
+    Pressable,
     ScrollView,
     StyleSheet,
     Text,
-    TouchableOpacity,
+    TextInput,
+    useWindowDimensions,
     View
 } from "react-native";
 
 import { services } from "../../services/api";
 import { colors, radius, shadow, spacing, typography } from "../../theme/ui";
 
-export default function HomeScreen({ navigation }) {
+const bannerSlides = [
+    {
+        id: "banner-1",
+        title: "Summer Solar Care",
+        subtitle: "Deep cleaning packages with quick doorstep booking.",
+        highlight: "20% OFF",
+        colors: ["#0B6DFF", "#3AA0FF"]
+    },
+    {
+        id: "banner-2",
+        title: "Weekend Service Slots",
+        subtitle: "Book Saturday and Sunday panel wash without waiting.",
+        highlight: "Fast Booking",
+        colors: ["#0F9D58", "#48C78E"]
+    },
+    {
+        id: "banner-3",
+        title: "Premium Maintenance",
+        subtitle: "Cleaning, inspection and health check in one visit.",
+        highlight: "Top Rated",
+        colors: ["#FF8A00", "#FFB347"]
+    }
+];
 
-    const popularServices = services.slice(0, 2);
+const serviceMeta = {
+    1: { icon: "spray-bottle", duration: "45 min", rating: 4.8 },
+    2: { icon: "water-circle", duration: "60 min", rating: 4.9 },
+    3: { icon: "tools", duration: "90 min", rating: 4.7 }
+};
+
+export default function HomeScreen({ navigation }) {
+    const [searchQuery, setSearchQuery] = useState("");
+    const [activeBannerIndex, setActiveBannerIndex] = useState(0);
+    const { width } = useWindowDimensions();
+
+    const filteredServices = useMemo(() => {
+        const query = searchQuery.trim().toLowerCase();
+
+        if (!query) {
+            return services;
+        }
+
+        return services.filter((service) => service.name.toLowerCase().includes(query));
+    }, [searchQuery]);
+
+    const popularServices = filteredServices.slice(0, 4);
+    const miniServices = filteredServices.slice(0, 6);
+    const bannerCardWidth = Math.max(width - (spacing.lg * 2), 280);
+
+    const handleBannerScroll = (event) => {
+        const offsetX = event.nativeEvent.contentOffset.x;
+        const index = Math.round(offsetX / bannerCardWidth);
+        setActiveBannerIndex(index);
+    };
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.content}
+            showsVerticalScrollIndicator={false}
+        >
+            <View style={styles.searchBox}>
+                <MaterialCommunityIcons name="magnify" size={20} color={colors.textSecondary} />
+                <TextInput
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholder="Search services"
+                    placeholderTextColor={colors.textSecondary}
+                    style={styles.searchInput}
+                />
+            </View>
 
-            <View style={styles.banner}>
-                <Text style={styles.bannerTitle}>
-                    Solar Summer Offer
-                </Text>
+            <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Services</Text>
+                <Pressable onPress={() => navigation.navigate("AllServices")} hitSlop={8}>
+                    <Text style={styles.seeAllText}>See all</Text>
+                </Pressable>
+            </View>
 
-                <Text style={styles.bannerText}>
-                    Get Solar cleaning starting at Rs 499
-                </Text>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.servicesRow}
+            >
+                {miniServices.map((service) => {
+                    const meta = serviceMeta[service.id];
+
+                    return (
+                        <Pressable
+                            key={service.id}
+                            style={styles.smallServiceCard}
+                            onPress={() => navigation.navigate("Address", { service })}
+                        >
+                            <View style={styles.smallServiceIconWrap}>
+                                <Image source={service.image} style={styles.smallServiceImage} />
+                            </View>
+                            <Text style={styles.smallServiceName} numberOfLines={2}>
+                                {service.name}
+                            </Text>
+                            <View style={styles.smallServiceMeta}>
+                                <MaterialCommunityIcons name={meta?.icon ?? "star-four-points"} size={12} color={colors.primary} />
+                                <Text style={styles.smallServiceMetaText}>{meta?.duration ?? "45 min"}</Text>
+                            </View>
+                        </Pressable>
+                    );
+                })}
+            </ScrollView>
+
+            <ScrollView
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                onScroll={handleBannerScroll}
+                scrollEventThrottle={16}
+                decelerationRate="fast"
+                snapToInterval={bannerCardWidth}
+                contentContainerStyle={styles.bannerRow}
+            >
+                {bannerSlides.map((banner) => (
+                    <View
+                        key={banner.id}
+                        style={[
+                            styles.bannerCard,
+                            {
+                                width: bannerCardWidth,
+                                backgroundColor: banner.colors[0]
+                            }
+                        ]}
+                    >
+                        <View style={styles.bannerBadge}>
+                            <Text style={styles.bannerBadgeText}>{banner.highlight}</Text>
+                        </View>
+                        <Text style={styles.bannerTitle}>{banner.title}</Text>
+                        <Text style={styles.bannerSubtitle}>{banner.subtitle}</Text>
+                    </View>
+                ))}
+            </ScrollView>
+
+            <View style={styles.dotsRow}>
+                {bannerSlides.map((banner, index) => (
+                    <View
+                        key={banner.id}
+                        style={[
+                            styles.dot,
+                            index === activeBannerIndex && styles.activeDot
+                        ]}
+                    />
+                ))}
             </View>
 
             <Text style={styles.sectionTitle}>Popular Services</Text>
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.popularGrid}>
+                {popularServices.map((service) => {
+                    const meta = serviceMeta[service.id];
 
-                {popularServices.map((service) => (
+                    return (
+                        <Pressable
+                            key={service.id}
+                            style={styles.popularCard}
+                            onPress={() => navigation.navigate("Address", { service })}
+                        >
+                            <Image source={service.image} style={styles.popularImage} />
 
-                    <TouchableOpacity
-                        key={service.id}
-                        style={styles.popularCard}
-                        onPress={() => navigation.navigate("Address", { service })}
-                    >
+                            <View style={styles.ratingRow}>
+                                <MaterialCommunityIcons name="star" size={14} color="#F5A623" />
+                                <Text style={styles.ratingText}>{meta?.rating ?? 4.8}</Text>
+                            </View>
 
-                        <Image
-                            source={service.image}
-                            style={styles.popularIcon}
-                        />
+                            <Text style={styles.popularName} numberOfLines={2}>
+                                {service.name}
+                            </Text>
 
-                        <Text style={styles.popularText}>
-                            {service.name}
-                        </Text>
+                            <View style={styles.infoRow}>
+                                <MaterialCommunityIcons name="clock-outline" size={14} color={colors.textSecondary} />
+                                <Text style={styles.infoText}>{meta?.duration ?? "45 min"}</Text>
+                            </View>
 
-                    </TouchableOpacity>
-
-                ))}
-
-            </ScrollView>
-
-            <Text style={styles.sectionTitle}>All Services</Text>
-
-            <View style={styles.grid}>
-
-                {services.map((service) => (
-
-                    <TouchableOpacity
-                        key={service.id}
-                        style={styles.card}
-                        onPress={() => navigation.navigate("Address", { service })}
-                    >
-
-                        <Image
-                            source={service.image}
-                            style={styles.icon}
-                        />
-
-                        <Text style={styles.serviceName}>
-                            {service.name}
-                        </Text>
-
-                        <Text style={styles.price}>
-                            Rs {service.price}
-                        </Text>
-
-                    </TouchableOpacity>
-
-                ))}
-
+                            <View style={styles.priceRow}>
+                                <Text style={styles.priceLabel}>Starting at</Text>
+                                <Text style={styles.priceText}>Rs {service.price}</Text>
+                            </View>
+                        </Pressable>
+                    );
+                })}
             </View>
-
         </ScrollView>
     );
-
 }
 
 const styles = StyleSheet.create({
-
     container: {
         flex: 1,
-        backgroundColor: colors.background,
-        padding: spacing.lg
+        backgroundColor: colors.background
     },
 
-    banner: {
-        backgroundColor: colors.primary,
+    content: {
         padding: spacing.lg,
-        borderRadius: radius.lg,
-        marginBottom: spacing.lg
+        paddingBottom: spacing.xl * 2
     },
 
-    bannerTitle: {
-        color: "#fff",
-        fontSize: typography.h2,
-        fontWeight: "700"
+    searchBox: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: spacing.sm,
+        backgroundColor: colors.surface,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: radius.pill,
+        paddingHorizontal: spacing.md,
+        paddingVertical: 2,
+        ...shadow
     },
 
-    bannerText: {
-        color: "#fff",
-        fontSize: typography.body,
-        marginTop: 6
+    searchInput: {
+        flex: 1,
+        paddingVertical: 12,
+        color: colors.textPrimary,
+        fontSize: typography.body
+    },
+
+    sectionHeader: {
+        marginTop: spacing.lg,
+        marginBottom: spacing.sm,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between"
     },
 
     sectionTitle: {
         color: colors.textPrimary,
         fontSize: typography.h3,
+        fontWeight: "700"
+    },
+
+    seeAllText: {
+        color: colors.primary,
+        fontSize: typography.caption,
+        fontWeight: "700"
+    },
+
+    servicesRow: {
+        gap: spacing.sm,
+        paddingRight: spacing.sm
+    },
+
+    smallServiceCard: {
+        width: 116,
+        backgroundColor: colors.surface,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: radius.md,
+        padding: spacing.sm,
+        ...shadow
+    },
+
+    smallServiceIconWrap: {
+        width: 52,
+        height: 52,
+        borderRadius: 16,
+        backgroundColor: colors.chip,
+        alignItems: "center",
+        justifyContent: "center"
+    },
+
+    smallServiceImage: {
+        width: 28,
+        height: 28,
+        resizeMode: "contain"
+    },
+
+    smallServiceName: {
+        marginTop: spacing.sm,
+        color: colors.textPrimary,
+        fontSize: 13,
         fontWeight: "700",
-        marginBottom: spacing.sm
+        minHeight: 34
+    },
+
+    smallServiceMeta: {
+        marginTop: spacing.xs,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 4
+    },
+
+    smallServiceMetaText: {
+        color: colors.textSecondary,
+        fontSize: 11,
+        fontWeight: "600"
+    },
+
+    bannerRow: {
+        marginTop: spacing.lg
+    },
+
+    bannerCard: {
+        marginRight: spacing.sm,
+        borderRadius: radius.lg,
+        padding: spacing.lg,
+        minHeight: 164,
+        justifyContent: "space-between",
+        ...shadow
+    },
+
+    bannerBadge: {
+        alignSelf: "flex-start",
+        backgroundColor: "#FFFFFF2A",
+        borderRadius: radius.pill,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: 6
+    },
+
+    bannerBadgeText: {
+        color: "#fff",
+        fontSize: typography.caption,
+        fontWeight: "700"
+    },
+
+    bannerTitle: {
+        marginTop: spacing.md,
+        color: "#fff",
+        fontSize: typography.h2,
+        fontWeight: "800",
+        maxWidth: "80%"
+    },
+
+    bannerSubtitle: {
+        marginTop: spacing.sm,
+        color: "#EEF6FF",
+        fontSize: typography.body,
+        lineHeight: 21,
+        maxWidth: "88%"
+    },
+
+    dotsRow: {
+        marginTop: spacing.md,
+        marginBottom: spacing.lg,
+        flexDirection: "row",
+        justifyContent: "center",
+        gap: 8
+    },
+
+    dot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: colors.border
+    },
+
+    activeDot: {
+        width: 22,
+        backgroundColor: colors.primary
+    },
+
+    popularGrid: {
+        marginTop: spacing.sm,
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+        rowGap: spacing.md
     },
 
     popularCard: {
+        width: "48%",
         backgroundColor: colors.surface,
-        padding: spacing.md,
-        borderRadius: radius.md,
-        marginRight: spacing.sm,
-        alignItems: "center",
-        width: 130,
         borderWidth: 1,
         borderColor: colors.border,
+        borderRadius: radius.lg,
+        padding: spacing.md,
         ...shadow
     },
 
-    popularIcon: {
-        width: 40,
-        height: 40,
-        marginBottom: 5
+    popularImage: {
+        width: 44,
+        height: 44,
+        resizeMode: "contain"
     },
 
-    popularText: {
+    ratingRow: {
+        marginTop: spacing.sm,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 4
+    },
+
+    ratingText: {
         color: colors.textPrimary,
         fontSize: typography.caption,
-        fontWeight: "600",
-        textAlign: "center",
-        marginTop: 2
+        fontWeight: "700"
     },
 
-    grid: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-between"
-    },
-
-    card: {
-        backgroundColor: colors.surface,
-        width: "48%",
-        padding: spacing.md,
-        borderRadius: radius.md,
-        alignItems: "center",
-        marginBottom: spacing.md,
-        borderWidth: 1,
-        borderColor: colors.border,
-        ...shadow
-    },
-
-    icon: {
-        width: 50,
-        height: 50,
-        marginBottom: 10
-    },
-
-    serviceName: {
+    popularName: {
+        marginTop: spacing.xs,
         color: colors.textPrimary,
         fontSize: typography.body,
         fontWeight: "700",
-        textAlign: "center"
+        minHeight: 40
     },
 
-    price: {
-        color: colors.primary,
-        fontWeight: "700",
-        marginTop: 6
-    }
+    infoRow: {
+        marginTop: spacing.sm,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6
+    },
 
+    infoText: {
+        color: colors.textSecondary,
+        fontSize: typography.caption
+    },
+
+    priceRow: {
+        marginTop: spacing.md
+    },
+
+    priceLabel: {
+        color: colors.textSecondary,
+        fontSize: 12
+    },
+
+    priceText: {
+        marginTop: 2,
+        color: colors.primary,
+        fontSize: typography.body,
+        fontWeight: "800"
+    }
 });

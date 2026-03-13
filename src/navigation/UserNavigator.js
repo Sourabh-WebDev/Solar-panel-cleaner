@@ -1,15 +1,17 @@
 
 import { useContext } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Image } from "expo-image";
 import { AuthContext } from "../context/AuthContext";
-import { colors, typography } from "../theme/ui";
+import { colors, spacing, typography } from "../theme/ui";
 
 import HomeScreen from "../screens/user/HomeScreen";
 import MyOrdersScreen from "../screens/user/MyOrdersScreen";
 import ProfileScreen from "../screens/user/ProfileScreen";
+import AllServicesScreen from "../screens/user/AllServicesScreen";
 
 import AddressScreen from "../screens/user/AddressScreen";
 import BookingSuccessScreen from "../screens/user/BookingSuccessScreen";
@@ -22,7 +24,7 @@ const Tab = createBottomTabNavigator();
 
 
 function TabScreens() {
-    const { setUser } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
 
     return (
 
@@ -39,6 +41,30 @@ function TabScreens() {
                     fontSize: typography.h3,
                     fontWeight: "700"
                 },
+                headerTitleAlign: "left",
+                headerTitle: () => (
+                    <View style={styles.headerTitleWrap}>
+                        <View style={styles.headerAvatar}>
+                            {user?.profileImageUri ? (
+                                <Image
+                                    source={{ uri: user.profileImageUri }}
+                                    style={styles.headerAvatarImage}
+                                    contentFit="cover"
+                                />
+                            ) : (
+                                <MaterialCommunityIcons name="account" size={20} color={colors.primary} />
+                            )}
+                        </View>
+                        <View style={styles.headerTextWrap}>
+                            <Text style={styles.headerName}>
+                                {user?.name ?? "Customer"}
+                            </Text>
+                            <Text style={styles.headerEmail}>
+                                {user?.email ?? "customer@solarcleaner.app"}
+                            </Text>
+                        </View>
+                    </View>
+                ),
                 headerRightContainerStyle: {
                     paddingRight: 14
                 },
@@ -47,14 +73,15 @@ function TabScreens() {
                 },
                 headerRight: () => (
                     <Pressable
-                        onPress={() => setUser(null)}
                         hitSlop={8}
-                        style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+                        style={styles.notificationButton}
                     >
-                        <MaterialCommunityIcons name="logout" size={18} color={colors.primary} />
-                        <Text style={{ color: colors.primary, fontWeight: "700" }}>
-                            Logout
-                        </Text>
+                        <MaterialCommunityIcons name="bell-outline" size={22} color={colors.textPrimary} />
+                        <View style={styles.notificationBadge}>
+                            <Text style={styles.notificationCount}>
+                                {user?.notificationsCount ?? 0}
+                            </Text>
+                        </View>
                     </Pressable>
                 ),
                 tabBarIcon: ({ color, size, focused }) => {
@@ -110,8 +137,6 @@ function TabScreens() {
 
 
 export default function UserNavigator() {
-    const { setUser } = useContext(AuthContext);
-
     return (
 
         <Stack.Navigator
@@ -133,18 +158,6 @@ export default function UserNavigator() {
                 headerLeftContainerStyle: {
                     paddingLeft: 8
                 },
-                headerRight: () => (
-                    <Pressable
-                        onPress={() => setUser(null)}
-                        hitSlop={8}
-                        style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
-                    >
-                        <MaterialCommunityIcons name="logout" size={18} color={colors.primary} />
-                        <Text style={{ color: colors.primary, fontWeight: "700" }}>
-                            Logout
-                        </Text>
-                    </Pressable>
-                ),
                 contentStyle: { backgroundColor: colors.background }
             }}
         >
@@ -160,6 +173,15 @@ export default function UserNavigator() {
                 component={AddressScreen}
                 options={{
                     title: "Enter Address",
+                    headerBackVisible: true
+                }}
+            />
+
+            <Stack.Screen
+                name="AllServices"
+                component={AllServicesScreen}
+                options={{
+                    title: "All Services",
                     headerBackVisible: true
                 }}
             />
@@ -205,3 +227,61 @@ export default function UserNavigator() {
     );
 
 }
+
+const styles = StyleSheet.create({
+    headerTitleWrap: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: spacing.sm
+    },
+    headerAvatar: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        backgroundColor: colors.chip,
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    headerAvatarImage: {
+        width: "100%",
+        height: "100%",
+        borderRadius: 19
+    },
+    headerTextWrap: {
+        gap: 2
+    },
+    headerName: {
+        color: colors.textPrimary,
+        fontSize: typography.body,
+        fontWeight: "700"
+    },
+    headerEmail: {
+        color: colors.textSecondary,
+        fontSize: 12
+    },
+    notificationButton: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        backgroundColor: colors.chip,
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    notificationBadge: {
+        position: "absolute",
+        top: 6,
+        right: 5,
+        minWidth: 16,
+        height: 16,
+        borderRadius: 8,
+        paddingHorizontal: 4,
+        backgroundColor: "#E74C3C",
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    notificationCount: {
+        color: "#fff",
+        fontSize: 10,
+        fontWeight: "700"
+    }
+});
